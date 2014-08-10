@@ -380,9 +380,10 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       // todo: include not-yet-approved scheduled transactions here
       // todo: use transaction filters instead of 'if'
       // todo: allow user to decide which categories to show here
+      // todo: store dates as actual dates instead of strings
 
       transactionDate = new Date(transaction.date);
-      console.log(start + ' ' + end + ' ' + transactionDate);
+
       if (transaction.categoryId === self.categoryId
           && transactionDate >= start
           && transactionDate < end
@@ -392,10 +393,16 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
           return sum;
   }, 0);
 
-  self.balance = self.budgeted - self.outflows;
+  self.balance = self.budgeted + self.outflows;
 
   // todo: make ontrack reflect how well you're sticking to the budget so far
-  self.ontrack = 2;
+  // todo: adjust for days in month
+
+  var currentDay = new Date().getDate();
+
+  var proratedBudget = self.budgeted / 31 * currentDay;
+
+  self.ontrack = proratedBudget + self.outflows;
 }
 
 function Transaction(app, transaction) {
