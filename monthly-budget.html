@@ -30,12 +30,12 @@
       <div class="row" data-bind="visible: budget.loadingProgress() === 100">
         <div class="col-sm-3 accounts">
           <div class="list-group">
-            <a href="monthly-budget.html" class="list-group-item">
+            <a href="#" class="list-group-item active">
               Budget
             </a>
           </div>
           <div class="list-group">
-            <a href="#" class="list-group-item" data-bind="click: account.selectAllAccount, css: { active: !account.selectedAccount() }">
+            <a href="app.html" class="list-group-item">
               <span class="badge" data-bind="text: numeral(netWorth()).format($root.numberFormat)"></span>
               All Accounts
             </a>
@@ -57,65 +57,39 @@
         </div>
 
         <div class="col-sm-9 col-sm-offset-3 transactions">
-          <ul data-bind="foreach: transaction.filters, visible: transaction.filters().length" class="list-unstyled filters">
-            <li class="filter" data-bind="click: $root.transaction.removeFilter($data.id)" title="click to remove this filter">
-              <span class="label label-default">
-                <span data-bind="text: name"></span>:
-                <span data-bind="text: value($data.on)"></span>
-              </span>
-              <span class="label label-danger filter-remove">&times;</span>
-            </li>
+          <ul data-bind="foreach: monthlyCategoryBudget">
           </ul>
           <table class="table table-striped table-bordered table-condensed table-responsive">
             <thead>
-              <tr data-bind="with: transaction">
-                <td data-bind="click: sort('accountName'), visible: !$root.account.selectedAccount()">
-                  Account
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'accountName', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i>
-                </td>  
-                <td data-bind="click: sort('date')" class="transaction-date">
-                  Date
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'date', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i> 
-                </td>  
-                <td data-bind="click: sort('payeeName')">
-                  Payee
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'payeeName', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i>  
-                </td>  
-                <td data-bind="click: sort('categoryName')">
+              <tr>
+                <td>
+                  Month
+                </td>
+                <td>
                   Category
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'categoryName', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i>
                 </td>  
-                <td data-bind="click: sort('memo')">
-                  Memo
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'memo', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i>
+                <td>
+                  Budgeted
                 </td>  
-                <td data-bind="click: sort('amount')" class="transaction-amount">
-                  Amount
-                  <i class="glyphicon pull-right" data-bind="visible: sortBy() === 'amount', css: desc() ? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes'"></i>
+                <td>
+                  Outflows
+                </td>  
+                <td>
+                  Balance
+                </td>  
+                <td>
+                  On-Track
                 </td>  
               </tr>
             </thead>
-            <tbody data-bind="foreach: transaction.filteredTransactions">
+            <tbody data-bind="foreach: monthlyCategoryBudget.filteredMonthlyCategoryBudgets">
               <tr data-bind="click: function(){ console.log($data); }">
-                <td data-bind="visible: !$root.account.selectedAccount()">
-                  <a href="#" data-bind="text: accountName, click: $root.transaction.addFilter('account', $data)"></a>
-                </td>
-                <td>
-                  <a href="#" data-bind="text: date, click: $root.transaction.addFilter('date', $data)"></a>
-                </td>
-                <td>
-                  <a href="#" data-bind="text: payeeName, click: $root.transaction.addFilter('payee', $data)"></a>
-                </td>
-                <td>
-                  <a href="#" data-bind="text: categoryName, click: $root.transaction.addFilter('category', $data), visible: !subTransactions.length"></a>
-                  <ul data-bind="visible: subTransactions.length, foreach: subTransactions" class="list-unstyled">
-                    <li>
-                      <a href="#" data-bind="text: categoryName, click: $root.transaction.addFilter('category', $data)"></a>
-                    </li>
-                  </ul>
-                </td>
-                <td data-bind="text: memo"></td>
-                <td data-bind="text: numeral(amount).format($root.numberFormat)" class="text-right"></td>
+                <td data-bind="text: month"></td>
+                <td data-bind="text: categoryName"></td>
+                <td data-bind="text: numeral(budgeted).format($root.numberFormat)" class="text-right"></td>
+                <td data-bind="text: numeral(outflows).format($root.numberFormat)" class="text-right"></td>
+                <td data-bind="text: numeral(balance).format($root.numberFormat)" class="text-right"></td>
+                <td data-bind="text: numeral(ontrack).format($root.numberFormat)" class="text-right"></td>
               </tr>
             </tbody>
           </table>
@@ -130,8 +104,8 @@
         </div>
         <div class="panel-body" data-bind="visible: show">
           <ul class="nav nav-pills nav-stacked" data-bind="foreach: accounts">
-            <li data-bind="click: $root.account.select, css: { active: $root.account.selectedAccount() === $data }">
-              <a href="#">
+            <li>
+              <a href="app.html">
                 <span class="badge pull-right" data-bind="text: numeral($root.accountBalance($data.entityId)).format($root.numberFormat), css: $root.accountBalance($data.entityId) < 0 ? 'alert-danger' : 'alert-success'"></span>
                 <span data-bind="text: accountName"></span>
               </a> 
@@ -157,5 +131,3 @@
     </script>
   </body>
 </html>
-
-<!--qrrtbcmepbyplpp-->

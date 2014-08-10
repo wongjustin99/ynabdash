@@ -9,7 +9,8 @@ function App(settings){
   self.account = new AccountController(appSettings);
   self.payee = new PayeeController(appSettings)
   self.category = new CategoryController(appSettings);
-  self.transaction = new TransactionController(appSettings)
+  self.transaction = new TransactionController(appSettings);
+  self.monthlyCategoryBudget = new MonthlyCategoryBudgetController(appSettings);
 
   var accountBalance = ko.computed(function(){
     var transactionsByAccountId = _.chain(self.transaction.transactions()).groupBy("accountId");
@@ -128,6 +129,21 @@ function CategoryController(settings) {
   self.lookup = function(id) {
     return lookup()[id] || specialLookup[id] || {};
   }
+}
+
+function MonthlyCategoryBudgetController(settings){
+  var self = this;
+  self.monthlyCategoryBudgets = ko.observableArray();
+  self.filteredMonthlyCategoryBudgets = ko.computed(function(){
+
+      // todo: allow month to be adjusted
+
+      var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).where({month: '2014-08-01'}).map(function(monthlyCategoryBudget){
+        return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
+    });
+
+    return monthlyCategoryBudgets.value();
+  });
 }
 
 function TransactionController(settings){
@@ -311,8 +327,16 @@ function BudgetController(settings){
                   return masterCategory.subCategories;
                 }).flatten().filter(function(c) { return c; }).value();
 
-                app.payee.payees(budget.payees)
+                monthlyCategoryBudgets = _.chain(budget.monthlyBudgets).map(function(monthlyCategoryBudget){
+                  _.each(monthlyCategoryBudget.monthlySubCategoryBudgets, function(monthlySubCategoryBudget){
+                    monthlySubCategoryBudget.month = monthlyCategoryBudget.month;
+                  });
+                  return monthlyCategoryBudget.monthlySubCategoryBudgets;
+                }).flatten().filter(function(c) { return c; }).value();
+
+                app.payee.payees(budget.payees);
                 app.category.categories(categories);
+                app.monthlyCategoryBudget.monthlyCategoryBudgets(monthlyCategoryBudgets);
                 
                 app.account.accounts(budget.accounts.sort(function(a, b) {
                   return a.sortableIndex - b.sortableIndex;
@@ -340,6 +364,38 @@ function BudgetController(settings){
       self.errorMessage("Error loading " + self.budgetMetaPath())
     })
   }
+}
+
+function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
+  var self = this;
+  self.month = monthlyCategoryBudget.month;
+  self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
+  self.categoryId = monthlyCategoryBudget.categoryId;
+  self.budgeted = monthlyCategoryBudget.budgeted;
+  self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
+      var amount = 0;
+      start = new Date(self.month);
+      end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
+      // todo: include transactions split among multiple categories here
+      // todo: include not-yet-approved scheduled transactions here
+      // todo: use transaction filters instead of 'if'
+      // todo: allow user to decide which categories to show here
+
+      transactionDate = new Date(transaction.date);
+      console.log(start + ' ' + end + ' ' + transactionDate);
+      if (transaction.categoryId === self.categoryId
+          && transactionDate >= start
+          && transactionDate < end
+       )
+        return sum + transaction.amount;
+      else
+          return sum;
+  }, 0);
+
+  self.balance = self.budgeted - self.outflows;
+
+  // todo: make ontrack reflect how well you're sticking to the budget so far
+  self.ontrack = 2;
 }
 
 function Transaction(app, transaction) {
