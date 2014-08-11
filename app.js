@@ -46,7 +46,10 @@ function MonthlyCategoryBudgetController(settings){
 
       // todo: allow month to be adjusted
 
-      var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).where({month: '2014-08-01'}).map(function(monthlyCategoryBudget){
+      var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
+          var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
+          return monthlyCategoryBudget.month === '2014-08-01' && _.contains(['Eating Out', 'Coffee', 'Spending Money'], categoryName);
+      }).map(function(monthlyCategoryBudget){
         return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
     });
 
@@ -258,24 +261,24 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
   self.categoryId = monthlyCategoryBudget.categoryId;
   self.budgeted = monthlyCategoryBudget.budgeted;
-  self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
+    self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
       var amount = 0;
-      start = self.month;
-      end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
+      var start = self.month;
+      var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
+      var transactionDate = new Date(transaction.date);
       // todo: include transactions split among multiple categories here
       // todo: include not-yet-approved scheduled transactions here
       // todo: use transaction filters instead of 'if'
       // todo: allow user to decide which categories to show here
       // todo: store dates as actual dates instead of strings
       // todo: remove everything that is not essential to monthly budgets
-
       if (transaction.categoryId === self.categoryId
-          && transaction.date >= start
-          && transaction.date < end
+          && transactionDate >= start
+          && transactionDate < end
        )
         return sum + transaction.amount;
       else
-          return sum;
+        return sum;
   }, 0);
 
   self.balance = self.budgeted + self.outflows;
