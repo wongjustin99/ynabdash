@@ -45,6 +45,7 @@ function MonthlyCategoryBudgetController(settings){
   self.filteredMonthlyCategoryBudgets = ko.computed(function(){
 
       // todo: allow month to be adjusted
+      // todo: allow which categories to show to be adjusted
 
       var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
           var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
@@ -269,9 +270,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       // todo: include transactions split among multiple categories here
       // todo: include not-yet-approved scheduled transactions here
       // todo: use transaction filters instead of 'if'
-      // todo: allow user to decide which categories to show here
-      // todo: store dates as actual dates instead of strings
-      // todo: remove everything that is not essential to monthly budgets
+
       if (transaction.categoryId === self.categoryId
           && transactionDate >= start
           && transactionDate < end
