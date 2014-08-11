@@ -6,7 +6,6 @@ function App(settings){
   self.numberFormat = '0,0.00';
   self.errorMessage = ko.observable();
   self.budget = new BudgetController(appSettings);
-  self.payee = new PayeeController(appSettings)
   self.category = new CategoryController(appSettings);
   self.transaction = new TransactionController(appSettings);
   self.monthlyCategoryBudget = new MonthlyCategoryBudgetController(appSettings);
@@ -21,20 +20,7 @@ function App(settings){
       self.errorMessage("Unable to load YNAB settings file (" + rootFile + "). Make sure you connect to a Dropbox account with that YNAB syncs with.");
     });
   });
-}
-
-function PayeeController(settings){
-  var self = this;
-  self.payees = ko.observableArray();
-
-  var lookup = ko.computed(function(){
-    return _.indexBy(self.payees(), 'entityId')
-  })
-
-  self.lookup = function(id) {
-    return lookup()[id] || {};
-  }
-}
+};
 
 function CategoryController(settings) {
   var self = this;
@@ -87,11 +73,6 @@ function TransactionController(settings){
       return transaction.date;
     }, function(transaction, on) {
       return transaction.date === on.date;
-    }),
-    "payee": new Filter("Payee", "payee", function(t) {
-      return t.payeeName;
-    }, function(t, on) {
-      return t.payeeId === on.payeeId;
     }),
     "category": new Filter("Category", "category", function(t) {
       return t.categoryName;
@@ -244,7 +225,6 @@ function BudgetController(settings){
                   return monthlyCategoryBudget.monthlySubCategoryBudgets;
                 }).flatten().filter(function(c) { return c; }).value();
 
-                app.payee.payees(budget.payees);
                 app.category.categories(categories);
                 app.monthlyCategoryBudget.monthlyCategoryBudgets(monthlyCategoryBudgets);
 
@@ -289,11 +269,9 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       // todo: store dates as actual dates instead of strings
       // todo: remove everything that is not essential to monthly budgets
 
-      transactionDate = new Date(transaction.date);
-
       if (transaction.categoryId === self.categoryId
-          && transactionDate >= start
-          && transactionDate < end
+          && transaction.date >= start
+          && transaction.date < end
        )
         return sum + transaction.amount;
       else
@@ -316,9 +294,7 @@ function Transaction(app, transaction) {
   var self = this;
   self.categoryName = app.category.lookup(transaction.categoryId).name;
   self.categoryId = transaction.categoryId;
-  self.payeeId = transaction.payeeId;
-  self.payeeName = app.payee.lookup(transaction.payeeId).name;
-  self.date = transaction.date;
+  self.date = new Date(transaction.date);
   self.memo = transaction.memo;
   self.amount = transaction.amount;
   self.subTransactions = (transaction.subTransactions || []).map(function(subTransaction){
