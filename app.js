@@ -254,13 +254,13 @@ function BudgetController(settings){
 
 function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   var self = this;
-  self.month = monthlyCategoryBudget.month;
+  self.month = new Date(monthlyCategoryBudget.month);
   self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
   self.categoryId = monthlyCategoryBudget.categoryId;
   self.budgeted = monthlyCategoryBudget.budgeted;
   self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
       var amount = 0;
-      start = new Date(self.month);
+      start = self.month;
       end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
       // todo: include transactions split among multiple categories here
       // todo: include not-yet-approved scheduled transactions here
@@ -280,8 +280,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
 
   self.balance = self.budgeted + self.outflows;
 
-  // todo: make ontrack reflect how well you're sticking to the budget so far
-  // todo: adjust for days in month
+  // todo: adjust for days in month instead of assuming 31
 
   var currentDay = new Date().getDate();
 
