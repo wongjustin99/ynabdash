@@ -6,32 +6,10 @@ function App(settings){
   self.numberFormat = '0,0.00';
   self.errorMessage = ko.observable();
   self.budget = new BudgetController(appSettings);
-  self.account = new AccountController(appSettings);
   self.payee = new PayeeController(appSettings)
   self.category = new CategoryController(appSettings);
   self.transaction = new TransactionController(appSettings);
   self.monthlyCategoryBudget = new MonthlyCategoryBudgetController(appSettings);
-
-  var accountBalance = ko.computed(function(){
-    var transactionsByAccountId = _.chain(self.transaction.transactions()).groupBy("accountId");
-
-    return transactionsByAccountId.reduce(function(memo, transactions, accountId){
-      memo[accountId] = _.reduce(transactions, function(sum, transaction){
-        return sum + transaction.amount;
-      }, 0);
-      return memo;
-    }, {}).value()
-  })
-
-  self.netWorth = ko.computed(function() {
-    return _.reduce(self.transaction.transactions(), function(sum, transaction){
-      return sum + transaction.amount;
-    }, 0);
-  })
-
-  self.accountBalance = function(accountId){
-    return accountBalance()[accountId] || 0;
-  }
 
   client.authenticate().then(function(){
     client.loadJson(rootFile).then(function(root){
@@ -43,62 +21,6 @@ function App(settings){
       self.errorMessage("Unable to load YNAB settings file (" + rootFile + "). Make sure you connect to a Dropbox account with that YNAB syncs with.");
     });
   });
-}
-
-function AccountList(settings) {
-  var self = this;
-  self.accounts = settings.accounts;
-  self.title = settings.title;
-  self.show = ko.observable(settings.show);
-  self.toggle = function(){
-    self.show(!self.show());
-  }
-}
-
-function AccountController(settings){
-  var self = this;
-
-  self.accounts = ko.observableArray();
-  self.selectedAccount = ko.observable()
-
-  var lookup = ko.computed(function(){
-    return _.indexBy(self.accounts(), 'entityId')
-  })
-
-  var budgetAccounts = ko.computed(function(){
-    return _.filter(self.accounts(), function(account){
-      return account.onBudget;
-    });
-  })
-
-  var offBudgetAccounts = ko.computed(function(){
-    return _.difference(self.accounts(), budgetAccounts());
-  })
-
-  self.budgetAccounts = new AccountList({
-    accounts: budgetAccounts,
-    show: true,
-    title: 'Budget Accounts'
-  })
-
-  self.offBudgetAccounts = new AccountList({
-    accounts: offBudgetAccounts,
-    show: false,
-    title: 'Off Budget Accounts'
-  })
-
-  self.lookup = function(id) {
-    return lookup()[id] || {};
-  }
-
-  self.select = function(account){
-    self.selectedAccount(account)
-    settings.app.transaction.removeFilters();
-  }
-
-  self.selectAllAccount = function(){
-    self.selectedAccount(null);
-  }
 }
 
 function PayeeController(settings){
@@ -161,11 +83,6 @@ function TransactionController(settings){
   }
 
   var filters = {
-    "account": new Filter("Account", "account", function(transaction) { 
-      return transaction.accountName;
-    }, function(transaction, on) {
-      return transaction.accountId === on.accountId;
-    }),
     "date": new Filter("Date", "date", function(transaction) { 
       return transaction.date;
     }, function(transaction, on) {
@@ -214,16 +131,9 @@ function TransactionController(settings){
     var sort = self.sortBy();
     var desc = self.desc();
     var filters = self.filters();
-    var account = settings.app.account.selectedAccount();
     var transactions = _.chain(self.transactions()).map(function(transaction){
       return new Transaction(settings.app, transaction);
     });
-
-    if(account){
-      transactions = transactions.filter(function(transaction){
-        return transaction.accountId === account.entityId;
-      })
-    }
 
     filters.forEach(function(filter){
       transactions = transactions.filter(function(transaction){
@@ -337,10 +247,6 @@ function BudgetController(settings){
                 app.payee.payees(budget.payees);
                 app.category.categories(categories);
                 app.monthlyCategoryBudget.monthlyCategoryBudgets(monthlyCategoryBudgets);
-                
-                app.account.accounts(budget.accounts.sort(function(a, b) {
-                  return a.sortableIndex - b.sortableIndex;
-                }))
 
                 app.transaction.transactions(budget.transactions.filter(function(transaction){
                   return !transaction.isTombstone;
@@ -381,6 +287,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       // todo: use transaction filters instead of 'if'
       // todo: allow user to decide which categories to show here
       // todo: store dates as actual dates instead of strings
+      // todo: remove everything that is not essential to monthly budgets
 
       transactionDate = new Date(transaction.date);
 
@@ -407,8 +314,6 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
 
 function Transaction(app, transaction) {
   var self = this;
-  self.accountId = transaction.accountId;
-  self.accountName = app.account.lookup(transaction.accountId).accountName;
   self.categoryName = app.category.lookup(transaction.categoryId).name;
   self.categoryId = transaction.categoryId;
   self.payeeId = transaction.payeeId;
