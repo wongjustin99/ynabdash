@@ -194,22 +194,22 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
   self.categoryId = monthlyCategoryBudget.categoryId;
   self.budgeted = monthlyCategoryBudget.budgeted;
-    self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
-      var amount = 0;
-      var start = self.month;
-      var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
-      var transactionDate = new Date(transaction.date);
+  self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
+    var amount = 0;
+    var start = self.month;
+    var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
+    var transactionDate = new Date(transaction.date);
 
-      // todo: include transactions split among multiple categories here
-      // todo: include not-yet-approved scheduled transactions here
+    // todo: include transactions split among multiple categories here
+    // todo: include not-yet-approved scheduled transactions here
 
-      if (transaction.categoryId === self.categoryId
-          && transactionDate >= start
-          && transactionDate < end
-       )
-        return sum + transaction.amount;
-      else
-        return sum;
+    if (transaction.categoryId === self.categoryId
+        && transactionDate >= start
+        && transactionDate < end
+    )
+      return sum + transaction.amount;
+    else
+      return sum;
   }, 0);
 
   self.balance = self.budgeted + self.outflows;
