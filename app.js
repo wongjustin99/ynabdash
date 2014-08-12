@@ -194,22 +194,34 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
   self.categoryId = monthlyCategoryBudget.categoryId;
   self.budgeted = monthlyCategoryBudget.budgeted;
+
   self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction){
-    var amount = 0;
+
+    // todo: include not-yet-approved scheduled transactions here
+
     var start = self.month;
     var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
     var transactionDate = new Date(transaction.date);
 
-    // todo: include transactions split among multiple categories here
-    // todo: include not-yet-approved scheduled transactions here
-
-    if (transaction.categoryId === self.categoryId
-        && transactionDate >= start
+    if (transactionDate >= start
         && transactionDate < end
-    )
-      return sum + transaction.amount;
-    else
-      return sum;
+        && transaction.categoryId === self.categoryId)
+      sum += transaction.amount;
+
+
+    // account for transactions split across multiple categories
+    // todo: diagnose whether this is working correctly
+
+    var subSum = _.reduce((transaction.subTransactions || []), function(subSum, subTransaction) {
+
+      if (subTransaction.categoryId === self.categoryId)
+        subSum += subTransaction.amount;
+
+      return subSum;
+
+    }, 0);
+
+      return sum + subSum;
   }, 0);
 
   self.balance = self.budgeted + self.outflows;
@@ -217,7 +229,6 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   // todo: adjust for days in month instead of assuming 31
 
   var currentDay = new Date().getDate();
-
   var proratedBudget = self.budgeted / 31 * currentDay;
 
   self.onTrack = proratedBudget + self.outflows;
@@ -233,7 +244,8 @@ function Transaction(app, transaction) {
   self.subTransactions = (transaction.subTransactions || []).map(function(subTransaction){
     return {
       categoryName: app.category.lookup(subTransaction.categoryId).name,
-      categoryId: subTransaction.categoryId
+      categoryId: subTransaction.categoryId,
+      amount: subTransaction.amount
     };
   })
 
