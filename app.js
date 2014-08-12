@@ -45,11 +45,12 @@ function MonthlyCategoryBudgetController(settings){
   self.filteredMonthlyCategoryBudgets = ko.computed(function(){
 
       // todo: allow month to be adjusted
-      // todo: allow which categories to show to be adjusted
+      // todo: allow which category selection to be adjusted
 
       var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
           var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
-          return monthlyCategoryBudget.month === '2014-08-01' && _.contains(['Eating Out', 'Coffee', 'Spending Money'], categoryName);
+          return monthlyCategoryBudget.month === '2014-08-01' 
+              && _.contains(['Eating Out', 'Coffee', 'Spending Money'], categoryName);
       }).map(function(monthlyCategoryBudget){
         return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
     });
@@ -198,6 +199,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       var start = self.month;
       var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
       var transactionDate = new Date(transaction.date);
+
       // todo: include transactions split among multiple categories here
       // todo: include not-yet-approved scheduled transactions here
 
@@ -218,7 +220,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
 
   var proratedBudget = self.budgeted / 31 * currentDay;
 
-  self.ontrack = proratedBudget + self.outflows;
+  self.onTrack = proratedBudget + self.outflows;
 }
 
 function Transaction(app, transaction) {
