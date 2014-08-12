@@ -200,7 +200,6 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       var transactionDate = new Date(transaction.date);
       // todo: include transactions split among multiple categories here
       // todo: include not-yet-approved scheduled transactions here
-      // todo: use transaction filters instead of 'if'
 
       if (transaction.categoryId === self.categoryId
           && transactionDate >= start
