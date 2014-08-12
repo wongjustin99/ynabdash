@@ -45,7 +45,7 @@ function MonthlyCategoryBudgetController(settings){
   self.filteredMonthlyCategoryBudgets = ko.computed(function(){
 
       // todo: allow month to be adjusted
-      // todo: allow which category selection to be adjusted
+      // todo: allow category selection to be adjusted
 
       var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
           var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
