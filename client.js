@@ -16,20 +16,13 @@ function Client(settings){
   this.load = function (path, method){
     var deferred = new $.Deferred;
     var cached = undefined;//fetchCache(method, path);
-    if(cached !== undefined) {
-      setTimeout(function(){
-        deferred.resolve(cached);        
-      }, 10)
-    } else {
-      this.dropbox[method](path, function(error, data) {
-        if (error) {
-          deferred.reject(error);
-        }else{
-          pushCache(method, path, data);
-          deferred.resolve(data);
-        }
-      });      
-    }
+    this.dropbox[method](path, function(error, data) {
+      if (error) {
+        deferred.reject(error);
+      }else{
+        deferred.resolve(data);
+      }
+    });      
 
     return deferred;
   }

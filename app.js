@@ -44,13 +44,19 @@ function MonthlyCategoryBudgetController(settings){
   self.monthlyCategoryBudgets = ko.observableArray();
   self.filteredMonthlyCategoryBudgets = ko.computed(function(){
 
-      // todo: allow month to be adjusted
       // todo: allow category selection to be adjusted
+      // todo: order output by amount budgeted descending
+      // todo: remove duplicate new Date() logic
+      // todo: get rid of the need for + 1 after budgetMonth but not curMonth
 
       var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
+
           var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
-          return monthlyCategoryBudget.month === '2014-08-01' 
+          var curMonth = new Date().getMonth();
+          var budgetMonth = new Date(monthlyCategoryBudget.month).getMonth() + 1;
+          return budgetMonth === curMonth
               && _.contains(['Eating Out', 'Coffee', 'Spending Money'], categoryName);
+
       }).map(function(monthlyCategoryBudget){
         return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
     });
@@ -203,25 +209,22 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
     var end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
     var transactionDate = new Date(transaction.date);
 
-    if (transactionDate >= start
-        && transactionDate < end
-        && transaction.categoryId === self.categoryId)
+    if (transactionDate < start || transactionDate >= end)
+      return sum;
+
+    if (transaction.categoryId === self.categoryId)
       sum += transaction.amount;
 
-
-    // account for transactions split across multiple categories
-    // todo: diagnose whether this is working correctly
-
     var subSum = _.reduce((transaction.subTransactions || []), function(subSum, subTransaction) {
-
       if (subTransaction.categoryId === self.categoryId)
-        subSum += subTransaction.amount;
+          subSum += subTransaction.amount;
 
       return subSum;
 
     }, 0);
 
-      return sum + subSum;
+    return sum + subSum;
+
   }, 0);
 
   self.balance = self.budgeted + self.outflows;
