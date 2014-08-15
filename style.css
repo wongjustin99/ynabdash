@@ -34,44 +34,34 @@ body {
     padding: 5px;
 }
 
-.transaction-date, .transaction-amount {
-    width: 80px;
-}
-
-.filters li {
-    display: inline;
-}
-
-.filters .label {
-    font-size: 85%;
-    border-radius: 0;
-}
-
-.filter .label {
-    cursor: pointer;
-}
-
-.filter .label:first-child {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-}
-
-.filter .label:last-child {
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-}
-
-.filter-remove {
-    margin-left: 0px;
-}
-
 .sign-out {
     width: 100%;
     margin-bottom: 10px;
 }
 
-.toggle-account-list, .transactions table thead td {
-    cursor: pointer;
+.circle {
+  background-color: green;
+  background-size: 156px 156px;
+  border-radius: 50%;
+  width: 156px;
+  height: 156px;
+  margin: 15px;
+  color: white;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 156px;
+  text-align: center;
+  font-size: 34px;
+}
+
+.profitWarning {
+  background-color: red;
+}
+
+.text-muted {
+  color: #777;
+  font-size: 16px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-align: center;
 }
 
 @media (min-width: 768px) {
