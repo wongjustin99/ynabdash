@@ -39,27 +39,41 @@ body {
     margin-bottom: 10px;
 }
 
-.circle {
+.large-circle {
   background-color: green;
-  background-size: 156px 156px;
+  background-size: 176px 176px;
   border-radius: 50%;
-  width: 156px;
-  height: 156px;
-  margin: 15px;
+  width: 176px;
+  height: 176px;
+  margin: 10px;
   color: white;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  line-height: 156px;
+  line-height: 176px;
   text-align: center;
-  font-size: 34px;
+  font-size: 62px;
+}
+
+.small-circle {
+  background-color: green;
+  background-size: 76px 76px;
+  border-radius: 50%;
+  width: 76px;
+  height: 76px;
+  margin: 5px;
+  color: white;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 76px;
+  text-align: center;
+  font-size: 24px;
 }
 
 .profitWarning {
   background-color: red;
 }
 
-.text-muted {
+.text-muted-small {
   color: #777;
-  font-size: 16px;
+  font-size: 12px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   text-align: center;
 }

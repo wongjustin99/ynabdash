@@ -9,6 +9,7 @@ function App(settings){
   self.category = new CategoryController(appSettings);
   self.transaction = new TransactionController(appSettings);
   self.monthlyCategoryBudget = new MonthlyCategoryBudgetController(appSettings);
+  self.monthlyBudget = new MonthlyBudgetController(appSettings);
 
   client.authenticate().then(function(){
     client.loadJson(rootFile).then(function(root){
@@ -39,6 +40,17 @@ function CategoryController(settings) {
   }
 }
 
+function MonthlyBudgetController(settings) {
+  var self = this;
+  self.onTrack = ko.computed(function() {
+    return _.reduce(settings.app.monthlyCategoryBudget.filteredMonthlyCategoryBudgets(), function(sum, catBudget){
+      sum += catBudget.onTrack;
+      return sum;
+    }, 0);
+  });
+
+}
+
 function MonthlyCategoryBudgetController(settings){
   var self = this;
   self.monthlyCategoryBudgets = ko.observableArray();
@@ -48,7 +60,7 @@ function MonthlyCategoryBudgetController(settings){
       // todo: order output by amount budgeted descending
       // todo: remove duplicate new Date() logic
       // todo: get rid of the need for + 1 after budgetMonth but not curMonth
-      // todo: computer overall budget ontrack stats and style it
+      // todo: compute overall budget onTrack stats and style it
 
       var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget){
 
@@ -193,6 +205,11 @@ function BudgetController(settings){
       self.errorMessage("Error loading " + self.budgetMetaPath())
     })
   }
+}
+
+function MonthlyBudget(app) {
+  var self = this;
+
 }
 
 function MonthlyCategoryBudget(app, monthlyCategoryBudget) {

@@ -37,13 +37,24 @@
   </div>
 </div>
 
+<ul class="small-block-grid-1">
+  <li>
+    <center>
+      <div class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
+        <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
+      </div>
+      <!--<span class="text-muted-large">Overall</span>-->
+    </center>
+  </li>
+</ul>
+
 <ul class="small-block-grid-3" data-bind="foreach: monthlyCategoryBudget.filteredMonthlyCategoryBudgets">
   <li>
     <center>
-      <div class="circle" data-bind="css: { profitWarning: onTrack < 0 }">
+      <div class="small-circle" data-bind="css: { profitWarning: onTrack < 0 }">
         <span data-bind="text: numeral(onTrack).format($root.numberFormat)"></span>
       </div>
-    <span data-bind="text: categoryName" class="text-muted"></span>
+    <span data-bind="text: categoryName" class="text-muted-small"></span>
     </center>
   </li>
 </ul>
