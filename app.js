@@ -48,7 +48,12 @@ function MonthlyBudgetController(settings) {
       return sum;
     }, 0);
   });
-
+  self.dailyBudget = ko.computed(function() {
+    return _.reduce(settings.app.monthlyCategoryBudget.filteredMonthlyCategoryBudgets(), function(sum, catBudget){
+      sum += catBudget.dailyBudget;
+      return sum;
+    }, 0);
+  });
 }
 
 function MonthlyCategoryBudgetController(settings){
@@ -207,11 +212,6 @@ function BudgetController(settings){
   }
 }
 
-function MonthlyBudget(app) {
-  var self = this;
-
-}
-
 function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   var self = this;
   self.month = new Date(monthlyCategoryBudget.month);
@@ -250,9 +250,12 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   // todo: adjust for days in month instead of assuming 31
 
   var currentDay = new Date().getDate();
-  var proratedBudget = self.budgeted / 31 * currentDay;
 
-  self.onTrack = proratedBudget + self.outflows;
+  self.dailyBudget = self.budgeted / 31;
+
+  var proratedBudget = self.dailyBudget * currentDay;
+
+  self.onTrack = proratedBudget + self.outflows; // outflows is negative, don't subtract it
 }
 
 function Transaction(app, transaction) {
