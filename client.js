@@ -1,6 +1,8 @@
 function Client(settings){
-  this.dropbox = new Dropbox.Client(settings);
 
+  this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
+
+  this.dropbox = new Dropbox.Client(settings);
   var prefix = "ynab";
   this.hasLocalStorageSupport = (function(){
     try {

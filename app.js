@@ -73,7 +73,7 @@ function MonthlyCategoryBudgetController(settings){
           var curMonth = new Date().getMonth();
           var budgetMonth = new Date(monthlyCategoryBudget.month).getMonth() + 1;
           return budgetMonth === curMonth
-              && _.contains(['Eating Out', 'Coffee', 'Spending Money'], categoryName);
+              && _.contains(settings.client.categoriesOfInterest, categoryName);
 
       }).map(function(monthlyCategoryBudget){
         return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
