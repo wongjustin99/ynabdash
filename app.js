@@ -66,11 +66,8 @@ function MonthlyCategoryBudgetController(settings) {
   self.monthlyCategoryBudgets = ko.observableArray();
   self.filteredMonthlyCategoryBudgets = ko.computed(function() {
 
-    // todo: allow category selection to be adjusted
-    // todo: order output by amount budgeted descending
     // todo: remove duplicate new Date() logic
     // todo: get rid of the need for + 1 after budgetMonth but not curMonth
-    // todo: compute overall budget onTrack stats and style it
 
     var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget) {
 
