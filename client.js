@@ -1,50 +1,50 @@
-function Client(settings){
+function Client(settings) {
 
   this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
 
   this.dropbox = new Dropbox.Client(settings);
   var prefix = "ynab";
-  this.hasLocalStorageSupport = (function(){
+  this.hasLocalStorageSupport = (function() {
     try {
       var key = "ynab:localStorage:test";
       localStorage.setItem(key, "a");
       localStorage.removeItem(key);
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   })();
 
-  this.load = function (path, method){
+  this.load = function(path, method) {
     var deferred = new $.Deferred;
-    var cached = undefined;//fetchCache(method, path);
+    var cached = undefined; //fetchCache(method, path);
     this.dropbox[method](path, function(error, data) {
       if (error) {
         deferred.reject(error);
-      }else{
+      } else {
         deferred.resolve(data);
       }
-    });      
+    });
 
     return deferred;
   }
 
-  this.loadJson = function(path){
-    return this.load(path, "readFile").then(function(data){
+  this.loadJson = function(path) {
+    return this.load(path, "readFile").then(function(data) {
       return JSON.parse(data);
     });
   }
 
-  this.readDir = function(path){
+  this.readDir = function(path) {
     return this.load(path, "readdir");
   }
 
-  this.authenticate = function(){
+  this.authenticate = function() {
     var deferred = new $.Deferred;
     this.dropbox.authenticate(function(error, client) {
       if (error) {
         deferred.reject(error);
-      }else{
+      } else {
         deferred.resolve(client);
       }
     });
@@ -52,9 +52,9 @@ function Client(settings){
   }
 
   this.flushCache = function() {
-    if(this.hasLocalStorageSupport) {
-      Object.keys(localStorage).forEach(function(key){
-        if(key.indexOf("ynab") === 0) {
+    if (this.hasLocalStorageSupport) {
+      Object.keys(localStorage).forEach(function(key) {
+        if (key.indexOf("ynab") === 0) {
           localStorage.removeItem(key);
         }
       });
@@ -64,32 +64,35 @@ function Client(settings){
   var cacheTTL = 5 * 60 * 1000;
 
   function fetchCache(method, path) {
-    if(this.hasLocalStorageSupport) {
+    if (this.hasLocalStorageSupport) {
       var key = cacheKey(method, path);
       var cached = localStorage[key];
-      if(cached) {
+      if (cached) {
         try {
           var parsed = JSON.parse(cached);
           var expired = now() - (cacheTTL + parsed.timestamp) > 0;
-          if(expired) {
+          if (expired) {
             localStorage.removeItem(key);
             return undefined;
           } else {
             return parsed.data;
           }
-        } catch(e) {}
+        } catch (e) {}
       }
     }
     return undefined;
   }
 
-  function now(){
+  function now() {
     return (new Date).getTime()
   }
 
   function pushCache(method, path, value) {
-    if(this.hasLocalStorageSupport) {
-      localStorage[cacheKey(method, path)] = JSON.stringify({ data: value, timestamp: now() });
+    if (this.hasLocalStorageSupport) {
+      localStorage[cacheKey(method, path)] = JSON.stringify({
+        data: value,
+        timestamp: now()
+      });
     }
   }
 
