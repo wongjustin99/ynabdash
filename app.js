@@ -103,6 +103,8 @@ function BudgetController(settings) {
   var client = settings.client;
   var app = settings.app;
 
+  // todo: don't hard-code my own file names
+
   self.budgetMetaPath = 'YNAB/Budget~9674B08A.ynab4/Budget.ymeta';
   self.relativeDataFolderName = 'data1~05BB9702';
 
@@ -110,7 +112,8 @@ function BudgetController(settings) {
   self.budget = ko.observable();
   self.budgetDataFolder = ko.observable()
   self.devices = ko.observableArray();
-  self.device = ko.observable();
+  self.deviceMostRecent = ko.observable();
+  self.deviceWithBudgetFile = ko.observable();
   self.loadingProgress = ko.observable(0);
   self.loadingMessages = ko.observableArray();
   self.errorMessage = app.errorMessage;
@@ -120,7 +123,7 @@ function BudgetController(settings) {
   });
 
   self.budgetDataPath = ko.computed(function() {
-    return [self.budget(), self.budgetDataFolder()].join("/")
+    return [self.budget(), self.budgetDataFolder()].join("/");
   });
 
   self.budgetDevicesPath = ko.computed(function() {
@@ -132,8 +135,8 @@ function BudgetController(settings) {
   };
 
   self.fullBudgetPath = ko.computed(function() {
-    if (self.device()) {
-      return [self.budgetDataPath(), self.device().deviceGUID].join("/");
+    if (self.deviceWithBudgetFile()) {
+      return [self.budgetDataPath(), self.deviceWithBudgetFile().deviceGUID].join("/");
     }
   });
 
@@ -152,7 +155,8 @@ function BudgetController(settings) {
 
   self.select = function(budget) {
     self.budget(budget);
-    self.device(null);
+    self.deviceWithBudgetFile(null);
+    self.deviceMostRecent(null);
 
     self.loading(10, "Looking up where the YNAB data folder is ...");
     client.loadJson(self.budgetMetaPath).then(function(data) {
@@ -162,25 +166,49 @@ function BudgetController(settings) {
         self.loading(40, "");
         client.readDir(self.budgetDevicesPath()).then(function(deviceFiles) {
           self.loading(60, "Figuring out which device has the latest version ...");
+
+          // todo: diff the latest version if it's mobile (doesn't have full knowledge)
+          // device files are of form [something].ydevice
+          deviceFiles = _.filter(deviceFiles, function(f) {
+            return /.+\.ydevice$/i.test(f)
+          });
+
           async.eachLimit(deviceFiles, 1, function(deviceFile, callback) {
-            if (self.device()) {
+            if (self.deviceWithBudgetFile()) {
               callback()
             } else {
               var deviceFilePath = self.deviceFilePath(deviceFile);
               client.loadJson(deviceFilePath).then(function(device) {
                 self.devices.push(device);
-                if (self.devices().length > 1) {
-                  var latestDevice = _.max(self.devices(), function(device) {
+                if (self.devices().length === deviceFiles.length) {
+
+                  // find device that has most recent knowledge
+                  // if you most recently edited with your cell phone, this will be your cell phone
+                  // todo: refactor to remove duplication between this block and the next
+                  var deviceMostRecent = _.max(self.devices(), function(device) {
                     var versionsKnown = device.knowledge.split(',');
                     var versionsKnownSum = _.reduce(versionsKnown, function(sum, versionKnown) {
-                      var versionNum = versionKnown.substr(versionKnown.indexOf('-') + 1);
+                      var versionNum = parseInt(versionKnown.substr(versionKnown.indexOf('-') + 1));
                       return sum += versionNum;
                     }, 0);
-                    console.log(versionsKnownSum);
                     return versionsKnownSum;
                   });
-                  console.log(latestDevice);
-                  self.device(latestDevice);
+
+                  self.deviceMostRecent(deviceMostRecent);
+
+                  // find device that has most recent knowledge that also has the full budget file
+                  // if you most recently edited with your cell phone, this will the device BEFORE your cell phone
+                  var deviceWithBudgetFile = _.max(self.devices(), function(device) {
+                    if (!device.hasFullKnowledge) return;
+                    var versionsKnown = device.knowledge.split(',');
+                    var versionsKnownSum = _.reduce(versionsKnown, function(sum, versionKnown) {
+                      var versionNum = parseInt(versionKnown.substr(versionKnown.indexOf('-') + 1));
+                      return sum += versionNum;
+                    }, 0);
+                    return versionsKnownSum;
+                  });
+
+                  self.deviceWithBudgetFile(deviceWithBudgetFile);
                 }
                 callback();
               }).fail(function() {
@@ -190,7 +218,6 @@ function BudgetController(settings) {
           }, function(err) {
             if (!err) {
               self.loading(90, "Downloading the latest version of the data ...");
-              console.log(self.fullBudgetFile());
               client.loadJson(self.fullBudgetFile()).then(function(budget) {
                 self.loading(100);
                 var categories = _.chain(budget.masterCategories).map(function(masterCategory) {
