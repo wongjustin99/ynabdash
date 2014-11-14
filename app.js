@@ -106,7 +106,7 @@ function BudgetController(settings) {
   // todo: don't hard-code my own file names
 
   self.budgetMetaPath = 'YNAB/Budget~9674B08A.ynab4/Budget.ymeta';
-  self.relativeDataFolderName = 'data1~05BB9702';
+  self.relativeDataFolderName = 'data4-CB2CFD7A';
 
   self.budgets = ko.observableArray();
   self.budget = ko.observable();
