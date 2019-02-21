@@ -2,13 +2,13 @@
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" >
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>
-    var securedPage = location.protocol === "https:" || location.hostname === "localhost";
-    if(!securedPage) location.href = location.href.replace(/^http:/i, "https:");
-  </script>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      var securedPage = location.protocol === "https:" || location.hostname === "localhost";
+      if(!securedPage) location.href = location.href.replace(/^http:/i, "https:");
+    </script>
   <title>YNAB</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/css/normalize.min.css">
@@ -18,60 +18,60 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/js/vendor/modernizr.min.js"></script>
 
-</head>
-<body>
+  </head>
+  <body>
 
-<noscript>
-  <div class="alert alert-danger text-center">
-    <strong>Please enable JavaScript to use this application.</strong>
-  </div>
-</noscript>
-
-<div class="alert alert-danger text-center" data-bind="visible: errorMessage, text: errorMessage"></div>
-<div data-bind="visible: budget.loadingProgress() !== 100">
-  <div class="progress">
-    <div class="progress-bar progress-bar-success" data-bind="style: { width: budget.loadingProgress() + '%' }"></div>
-  </div>
-  <div class="text-center" data-bind="foreach: budget.loadingMessages">
-    <p data-bind="text: $data"></p>
-  </div>
-</div>
-
-<ul class="small-block-grid-1">
-  <li>
-    <center>
-      <div class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
-        <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
+    <noscript>
+      <div class="alert alert-danger text-center">
+        <strong>Please enable JavaScript to use this application.</strong>
       </div>
-      <span class="text-muted-small">Total</span>
-      <br/>
-      <span data-bind="text: numeral(monthlyBudget.dailyBudget()).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
-    </center>
-  </li>
-</ul>
+    </noscript>
 
-<ul class="small-block-grid-3" data-bind="foreach: monthlyCategoryBudget.filteredMonthlyCategoryBudgets">
-  <li>
-    <center>
-      <div class="small-circle" data-bind="css: { profitWarning: onTrack < 0 }">
-        <span data-bind="text: numeral(onTrack).format($root.numberFormat)"></span>
+    <div class="alert alert-danger text-center" data-bind="visible: errorMessage, text: errorMessage"></div>
+    <div data-bind="visible: budget.loadingProgress() !== 100">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success" data-bind="style: { width: budget.loadingProgress() + '%' }"></div>
       </div>
-      <span data-bind="text: categoryName" class="text-muted-small"></span>
-      <br/>
-      <span data-bind="text: numeral(dailyBudget).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
-    </center>
-  </li>
-</ul>
+      <div class="text-center" data-bind="foreach: budget.loadingMessages">
+        <p data-bind="text: $data"></p>
+      </div>
+    </div>
 
-<script src="https://unpkg.com/dropbox@4.0.15/dist/Dropbox-sdk.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-debug.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/js/foundation.min.js"></script>
-<script>
+    <ul class="small-block-grid-1">
+      <li>
+        <center>
+          <div class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
+            <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
+          </div>
+          <span class="text-muted-small">Total</span>
+          <br/>
+          <span data-bind="text: numeral(monthlyBudget.dailyBudget()).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
+        </center>
+      </li>
+    </ul>
+
+    <ul class="small-block-grid-3" data-bind="foreach: monthlyCategoryBudget.filteredMonthlyCategoryBudgets">
+      <li>
+        <center>
+          <div class="small-circle" data-bind="css: { profitWarning: onTrack < 0 }">
+            <span data-bind="text: numeral(onTrack).format($root.numberFormat)"></span>
+          </div>
+          <span data-bind="text: categoryName" class="text-muted-small"></span>
+          <br/>
+          <span data-bind="text: numeral(dailyBudget).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
+        </center>
+      </li>
+    </ul>
+
+    <script src="https://unpkg.com/dropbox@4.0.15/dist/Dropbox-sdk.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-debug.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/js/foundation.min.js"></script>
+    <script>
       $(document).foundation();
     </script>
     <script src="utils.js"></script>
