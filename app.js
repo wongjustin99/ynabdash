@@ -14,15 +14,14 @@ function App(settings) {
   self.monthlyCategoryBudget = new MonthlyCategoryBudgetController(appSettings);
   self.monthlyBudget = new MonthlyBudgetController(appSettings);
 
-  client.authenticate().then(function() {
-    client.loadJson(rootFile).then(function(root) {
-      self.budget.budgets(root.relativeKnownBudgets);
-      if (self.budget.budgets().length === 1) {
-        self.budget.select(self.budget.budgets()[0])
-      }
-    }).fail(function() {
-      self.errorMessage("Unable to load YNAB settings file (" + rootFile + "). Make sure you connect to a Dropbox account with that YNAB syncs with.");
-    });
+  client.loadJson(rootFile).then(function(root) {
+    console.log("loaded root file");
+    self.budget.budgets(root.relativeKnownBudgets);
+    if(self.budget.budgets().length > 1){
+      self.budget.select(self.budget.budgets()[0])
+    }
+  }).fail(function() {
+    self.errorMessage("Unable to load YNAB settings file (" + rootFile + "). Make sure you connect to a Dropbox account with that YNAB syncs with.");
   });
 };
 
@@ -105,8 +104,9 @@ function BudgetController(settings) {
 
   // todo: don't hard-code my own file names
 
-  self.budgetMetaPath = 'YNAB/Budget~9674B08A.ynab4/Budget.ymeta';
-  self.relativeDataFolderName = 'data4-CB2CFD7A';
+  //self.budgetMetaPath = 'YNAB/Budget~9674B08A.ynab4/Budget.ymeta';
+  self.budgetMetaPath = 'YNAB/USD~AA7FD686.ynab4/Budget.ymeta';
+  self.relativeDataFolderName = 'data3-31CA3DB7';
 
   self.budgets = ko.observableArray();
   self.budget = ko.observable();
@@ -131,7 +131,8 @@ function BudgetController(settings) {
   });
 
   self.deviceFilePath = function(deviceFileName) {
-    return [self.budgetDevicesPath(), deviceFileName].join("/")
+   //return [self.budgetDevicesPath(), deviceFileName].join("/")
+    return deviceFileName;
   };
 
   self.fullBudgetPath = ko.computed(function() {

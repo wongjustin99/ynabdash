@@ -41,7 +41,7 @@
   <li>
     <center>
       <div class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
-      <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
+        <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
       </div>
       <span class="text-muted-small">Total</span>
       <br/>
@@ -56,32 +56,85 @@
       <div class="small-circle" data-bind="css: { profitWarning: onTrack < 0 }">
         <span data-bind="text: numeral(onTrack).format($root.numberFormat)"></span>
       </div>
-    <span data-bind="text: categoryName" class="text-muted-small"></span>
-    <br/>
-    <span data-bind="text: numeral(dailyBudget).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
+      <span data-bind="text: categoryName" class="text-muted-small"></span>
+      <br/>
+      <span data-bind="text: numeral(dailyBudget).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
     </center>
   </li>
 </ul>
 
-    <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-debug.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/js/foundation.min.js"></script>
-  <script>
-    $(document).foundation();
-  </script>
-  <script src="client.js"></script>
-  <script src="app.js"></script>
-  <script>
-  var app;
-  if(securedPage) {
-    app = new App({ key: "b99sxqq4uqtlmh9"});
-    ko.applyBindings(app);      
-  }
-  </script>
-</body>
+<script src="https://unpkg.com/dropbox@4.0.15/dist/Dropbox-sdk.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-debug.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.5.3/numeral.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.1/js/foundation.min.js"></script>
+<script>
+      $(document).foundation();
+    </script>
+    <script src="utils.js"></script>
+    <script src="client.js"></script>
+    <script src="app.js"></script>
+
+    <div class="container main">
+      <div id="pre-auth-section" style="display:none;">
+        <p>This example takes the user through Dropbox's API OAuth flow using <code>Dropbox.getAuthenticationUrl()</code> method [<a href="http://dropbox.github.io/dropbox-sdk-js/Dropbox.html#getAuthenticationUrl">docs</a>] and then uses the generated access token to list the contents of their root directory.</p>
+        <a href="" id="authlink" class="button">Authenticate</a>
+        <p class="info">Once authenticated, it will use the access token to list the files in your root directory.</p>
+      </div>
+
+      <div id="authed-section" style="display:none;">
+        <p></p>
+        <ul id="files"></ul>
+      </div>
+    </div>
+
+
+    <script>
+      var app;
+      function getAccessTokenFromUrl() {
+        return utils.parseQueryString(window.location.hash).access_token;
+      }
+      // If the user was just redirected from authenticating, the urls hash will
+      // contain the access token.
+      function isAuthenticated() {
+        return !!getAccessTokenFromUrl();
+      }
+      // Render a list of items to #files
+      function renderItems(items) {
+        var filesContainer = document.getElementById('files');
+        items.forEach(function(item) {
+          var li = document.createElement('li');
+          li.innerHTML = item.name;
+          filesContainer.appendChild(li);
+        });
+      }
+      // This example keeps both the authenticate and non-authenticated setions
+      // in the DOM and uses this function to show/hide the correct section.
+      function showPageSection(elementId) {
+        document.getElementById(elementId).style.display = 'block';
+      }
+      if (isAuthenticated()) {
+        showPageSection('authed-section');
+        // Create an instance of Dropbox with the access token and use it
+        var dbx = new Dropbox.Dropbox({ accessToken: getAccessTokenFromUrl() });
+        if(securedPage) {
+          app = new App({ clientId: "e4vn78hc3ocn6yd", accessToken: getAccessTokenFromUrl() });
+          ko.applyBindings(app);      
+        }
+      } else {
+        showPageSection('pre-auth-section');
+        // Set the login anchors href using dbx.getAuthenticationUrl()
+        if(securedPage) {
+          // app = new App({ clientId: "e4vn78hc3ocn6yd"});
+          //ko.applyBindings(app);      
+          var dbx = new Dropbox.Dropbox({ clientId: "e4vn78hc3ocn6yd" });
+          var authUrl = dbx.getAuthenticationUrl('http://localhost:8000/app.html');
+          document.getElementById('authlink').href = authUrl;
+        }
+      }
+    </script>
+  </body>
 </html>

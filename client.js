@@ -1,8 +1,11 @@
 function Client(settings) {
 
-  this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
+  //this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
+  //this.categoriesOfInterest = ['Restaurants', 'Groceries', 'Vacation', 'Spending Money'];
+  //this.categoriesOfInterest = ['Groceries'];
+  this.categoriesOfInterest = ['Groceries','Vacation'];
 
-  this.dropbox = new Dropbox.Client(settings);
+  this.dropbox = new Dropbox.Dropbox(settings);
   var prefix = "ynab";
   this.hasLocalStorageSupport = (function() {
     try {
@@ -15,32 +18,86 @@ function Client(settings) {
     }
   })();
 
-  this.load = function(path, method) {
+  this.download = function(path, method) {
     var deferred = new $.Deferred;
-    var cached = undefined; //fetchCache(method, path);
-    this.dropbox[method](path, function(error, data) {
-      if (error) {
-        deferred.reject(error);
-      } else {
-        deferred.resolve(data);
-      }
-    });
+		var cached = undefined; //fetchCache(method, path);
+
+		this.dropbox[method]({path: '/' + path})
+			.then(function (data) {
+				if(method == "filesListFolder"){
+					console.log("unhandled method, probably..");
+					debugger;
+				}
+				//TODO: maybe split this up for the 2 dropbox methods, dont thinke ListFileFolders will like this..
+				console.log("LOAD: I'm here..." + method);
+				reader = new FileReader();
+				reader.addEventListener("loadend", function(){
+					//alert(reader.result);
+					pushCache(method, path, reader.result);
+					deferred.resolve(reader.result);
+				});
+				reader.readAsText(data.fileBlob);
+				//pushCache(method, path, reader.result);
+				//deferred.resolve(reader.result);
+			})
+			.catch(function (error) {
+				deferred.reject(error);
+			});
+
+		return deferred;
+  }
+
+this.dirload = function (path, method){
+    var deferred = new $.Deferred;
+    var cached = undefined;//fetchCache(method, path);
+    if(cached !== undefined) {
+      setTimeout(function(){
+        deferred.resolve(cached);        
+      }, 10)
+    } else {
+      this.dropbox[method]({path: '/' + path})
+      .then(function (data) {
+        if(method !== "filesListFolder"){
+          console.log("unhandled method, probably..");
+          debugger;
+        }
+        // TODO: handle more than one "page", aka keep checking with filesListFolderContinue
+
+        var pathsOnlyArr = [];
+        data.entries.forEach(function(element) {
+          // Dropbox SDK v1 and v2 have differing ideas on prefixed fwd slash
+          var path = element.path_lower.substr(1);
+          pathsOnlyArr.push(path);
+        });
+
+        if(data.has_more){
+        }
+
+        pushCache(method, path, pathsOnlyArr);
+        deferred.resolve(pathsOnlyArr);
+      })
+        .catch(function (error) {
+          deferred.reject(error);
+        });
+    }
 
     return deferred;
   }
 
   this.loadJson = function(path) {
-    return this.load(path, "readFile").then(function(data) {
+    return this.download(path, "filesDownload").then(function(data) {
       return JSON.parse(data);
     });
   }
 
   this.readDir = function(path) {
-    return this.load(path, "readdir");
+    return this.dirload(path, "filesListFolder");
   }
 
+	// TODO: move the auth stuff from app.html back here, this is unused
   this.authenticate = function() {
     var deferred = new $.Deferred;
+		/*
     this.dropbox.authenticate(function(error, client) {
       if (error) {
         deferred.reject(error);
@@ -48,6 +105,8 @@ function Client(settings) {
         deferred.resolve(client);
       }
     });
+		*/
+		deferred = true;
     return deferred;
   }
 
