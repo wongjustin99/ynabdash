@@ -69,13 +69,16 @@ function MonthlyCategoryBudgetController(settings) {
     // todo: get rid of the need for + 1 after budgetMonth but not curMonth
 
     var monthlyCategoryBudgets = _.chain(self.monthlyCategoryBudgets()).filter(function(monthlyCategoryBudget) {
-
       var categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
       var curMonth = new Date().getMonth();
-      var budgetMonth = new Date(monthlyCategoryBudget.month).getMonth() + 1;
-      return budgetMonth === curMonth && _.contains(settings.client.categoriesOfInterest, categoryName);
-
+      var curYear= new Date().getYear();
+      var budgetParts = monthlyCategoryBudget.month.split('-');
+      var budgetDate = new Date(budgetParts[0], budgetParts[1] - 1, budgetParts[2]); 
+      var budgetMonth = budgetDate.getMonth();
+      var budgetYear = budgetDate.getYear();
+      return budgetYear === curYear && budgetMonth === curMonth && _.contains(settings.client.categoriesOfInterest, categoryName);
     }).map(function(monthlyCategoryBudget) {
+      console.log("adding new monthlyCategoryBudget"+monthlyCategoryBudget.month);
       return new MonthlyCategoryBudget(settings.app, monthlyCategoryBudget);
     });
 
@@ -131,7 +134,7 @@ function BudgetController(settings) {
   });
 
   self.deviceFilePath = function(deviceFileName) {
-   //return [self.budgetDevicesPath(), deviceFileName].join("/")
+    //return [self.budgetDevicesPath(), deviceFileName].join("/")
     return deviceFileName;
   };
 
@@ -285,8 +288,10 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
       sum += transaction.amount;
 
     var subSum = _.reduce((transaction.subTransactions || []), function(subSum, subTransaction) {
-      if (subTransaction.categoryId === self.categoryId)
+      if (subTransaction.categoryId === self.categoryId){
         subSum += subTransaction.amount;
+        console.log("categoryId:" + subTransaction.categoryId);
+      }
 
       return subSum;
 
