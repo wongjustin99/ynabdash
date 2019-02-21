@@ -3,7 +3,7 @@ function Client(settings) {
   //this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
   //this.categoriesOfInterest = ['Restaurants', 'Groceries', 'Vacation', 'Spending Money'];
   //this.categoriesOfInterest = ['Groceries'];
-  this.categoriesOfInterest = ['Groceries','Vacation'];
+  this.categoriesOfInterest = ['Groceries','Spending Money666'];
 
   this.dropbox = new Dropbox.Dropbox(settings);
   var prefix = "ynab";
@@ -29,7 +29,7 @@ function Client(settings) {
 					debugger;
 				}
 				//TODO: maybe split this up for the 2 dropbox methods, dont thinke ListFileFolders will like this..
-				console.log("LOAD: I'm here..." + method);
+				//console.log("LOAD: I'm here..." + method);
 				reader = new FileReader();
 				reader.addEventListener("loadend", function(){
 					//alert(reader.result);
