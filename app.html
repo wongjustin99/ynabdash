@@ -40,12 +40,17 @@
     <ul class="small-block-grid-1">
       <li>
         <center>
-          <div class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
+          <span class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
             <span data-bind="text: numeral(monthlyBudget.onTrack()).format($root.numberFormat)"></span>
-          </div>
+          </span>
           <span class="text-muted-small">Total</span>
-          <br/>
           <span data-bind="text: numeral(monthlyBudget.dailyBudget()).format('$0,0') + ' daily budget'" class="text-muted-small"></span>
+          <span class="large-circle" data-bind="css: { profitWarning: monthlyBudget.onTrack() < 0 }">
+            <span data-bind="text: numeral(monthlyBudget.daysLeft).format($root.dayFormat)"></span>
+          </span>
+          <span class="text-muted-small">Days left in month</span>
+          (<span data-bind="text: numeral(monthlyBudget.daysInMonth).format($root.dayFormat)" class="text-muted-small"></span>)
+          <br/>
         </center>
       </li>
     </ul>

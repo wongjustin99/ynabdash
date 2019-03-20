@@ -7,6 +7,7 @@ function App(settings) {
     app: self
   };
   self.numberFormat = '+0,0.00';
+  self.dayFormat  = '0';
   self.errorMessage = ko.observable();
   self.budget = new BudgetController(appSettings);
   self.category = new CategoryController(appSettings);
@@ -46,6 +47,14 @@ function CategoryController(settings) {
 
 function MonthlyBudgetController(settings) {
   var self = this;
+
+  var currentDate = new Date();
+  var currentDay = currentDate.getDate()
+  var daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+
+  self.daysLeft = daysInMonth - currentDay;
+  self.daysInMonth = daysInMonth;
+
   self.onTrack = ko.computed(function() {
     return _.reduce(settings.app.monthlyCategoryBudget.filteredMonthlyCategoryBudgets(), function(sum, catBudget) {
       sum += catBudget.onTrack;
