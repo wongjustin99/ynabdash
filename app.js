@@ -6,7 +6,7 @@ function App(settings) {
     client: client,
     app: self
   };
-  self.numberFormat = '+0,0';
+  self.numberFormat = '+0,0.00';
   self.errorMessage = ko.observable();
   self.budget = new BudgetController(appSettings);
   self.category = new CategoryController(appSettings);
@@ -272,6 +272,7 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   self.categoryName = app.category.lookup(monthlyCategoryBudget.categoryId).name;
   self.categoryId = monthlyCategoryBudget.categoryId;
   self.budgeted = monthlyCategoryBudget.budgeted;
+  console.log("amount budgeted:" + monthlyCategoryBudget.budgeted);
 
   self.outflows = _.reduce(app.transaction.transactions(), function(sum, transaction) {
 
@@ -284,19 +285,20 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
     if (transactionDate < start || transactionDate >= end)
       return sum;
 
-    if (transaction.categoryId === self.categoryId)
+    if (transaction.categoryId === self.categoryId){
       sum += transaction.amount;
+      console.log("adding transaction:"+transaction.amount + " on " + transaction.date);
+    }
 
     var subSum = _.reduce((transaction.subTransactions || []), function(subSum, subTransaction) {
       if (subTransaction.categoryId === self.categoryId){
         subSum += subTransaction.amount;
-        console.log("categoryId:" + subTransaction.categoryId);
+        //console.log("categoryId:" + subTransaction.categoryId);
+        console.log("sub sum: " + subTransaction.amount);
       }
-
       return subSum;
-
     }, 0);
-
+    console.log("subtotal: " + (sum + subSum));
     return sum + subSum;
 
   }, 0);
@@ -312,6 +314,9 @@ function MonthlyCategoryBudget(app, monthlyCategoryBudget) {
   var proratedBudget = self.dailyBudget * currentDay;
 
   self.onTrack = proratedBudget + self.outflows; // outflows is negative, don't subtract it
+  // John's Personal Dashboard
+  self.dailyBudget = self.balance / (daysInMonth - currentDay);
+  self.onTrack = self.balance;
 }
 
 function Transaction(app, transaction) {

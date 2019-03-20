@@ -3,7 +3,7 @@ function Client(settings) {
   //this.categoriesOfInterest = ['Eating Out', 'Groceries', 'Coffee', 'Spending Money'];
   //this.categoriesOfInterest = ['Restaurants', 'Groceries', 'Vacation', 'Spending Money'];
   //this.categoriesOfInterest = ['Groceries'];
-  this.categoriesOfInterest = ['Groceries','Spending Money666'];
+  this.categoriesOfInterest = ['Groceries','Restaurants','Spending Money','Transportation'];
 
   this.dropbox = new Dropbox.Dropbox(settings);
   var prefix = "ynab";
